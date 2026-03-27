@@ -1,0 +1,35 @@
+services:
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: always
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/
+      - SIMILARITY_THRESHOLD=0.6
+    restart: always
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - CI=true
+      - HOST=0.0.0.0
+    depends_on:
+      - backend
+    stdin_open: true
+    tty: true
+    restart: always
+
+volumes:
+  mongo_data:
